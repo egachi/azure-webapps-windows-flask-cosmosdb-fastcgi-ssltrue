@@ -9,8 +9,9 @@ heading = "ToDo Reminder"
 
 ##Un-Comment when running against the Cosmos DB Emulator
 client = MongoClient("mongodb://edisga:C9GMVNx4bBrUNMeI0L6A1PQVz2RKkkeq9cra7w3WQBKEYouvgHOwF6goGvkHGNpHT7MgwwN2FQzikdxBnhN9AA==@edisga.documents.azure.com:10255/?ssl=true&replicaSet=globaldb") #host uri
-db = client.admin    #Select the database
-users = db.users #Select the collection
+db = client.test    #Select the database
+
+todos = db.todo #Select the collection
 
 def redirect_url():
     return request.args.get('next') or \
@@ -20,35 +21,35 @@ def redirect_url():
 @app.route("/list")
 def lists ():
 	#Display the all Tasks
-	users_l = users.find()
+	todos_l = todos.find()
 	a1="active"
-	return render_template('index.html',a1=a1,users=users_l,t=title,h=heading)
+	return render_template('index.html',a1=a1,todos=todos_l,t=title,h=heading)
 
 @app.route("/")
 @app.route("/uncompleted")
 def tasks ():
 	#Display the Uncompleted Tasks
-	users_l = users.find({"done":"no"})
+	todos_l = todos.find({"done":"no"})
 	a2="active"
-	return render_template('index.html',a2=a2,users=users_l,t=title,h=heading)
+	return render_template('index.html',a2=a2,todos=todos_l,t=title,h=heading)
 
 
 @app.route("/completed")
 def completed ():
 	#Display the Completed Tasks
-	users_l = users.find({"done":"yes"})
+	todos_l = todos.find({"done":"yes"})
 	a3="active"
-	return render_template('index.html',a3=a3,users=users_l,t=title,h=heading)
+	return render_template('index.html',a3=a3,todos=todos_l,t=title,h=heading)
 
 @app.route("/done")
 def done ():
 	#Done-or-not ICON
 	id=request.values.get("_id")
-	task=users.find({"_id":ObjectId(id)})
+	task=todos.find({"_id":ObjectId(id)})
 	if(task[0]["done"]=="yes"):
-		users.update({"_id":ObjectId(id)}, {"$set": {"done":"no"}})
+		todos.update({"_id":ObjectId(id)}, {"$set": {"done":"no"}})
 	else:
-		users.update({"_id":ObjectId(id)}, {"$set": {"done":"yes"}})
+		todos.update({"_id":ObjectId(id)}, {"$set": {"done":"yes"}})
 	redir=redirect_url()	# Re-directed URL i.e. PREVIOUS URL from where it came into this one
 
 #	if(str(redir)=="http://localhost:5000/search"):
@@ -67,20 +68,20 @@ def action ():
 	desc=request.values.get("desc")
 	date=request.values.get("date")
 	pr=request.values.get("pr")
-	users.insert({ "name":name, "desc":desc, "date":date, "pr":pr, "done":"no"})
+	todos.insert({ "name":name, "desc":desc, "date":date, "pr":pr, "done":"no"})
 	return redirect("/list")
 
 @app.route("/remove")
 def remove ():
 	#Deleting a Task with various references
 	key=request.values.get("_id")
-	users.remove({"_id":ObjectId(key)})
+	todos.remove({"_id":ObjectId(key)})
 	return redirect("/")
 
 @app.route("/update")
 def update ():
 	id=request.values.get("_id")
-	task=users.find({"_id":ObjectId(id)})
+	task=todos.find({"_id":ObjectId(id)})
 	return render_template('update.html',tasks=task,h=heading,t=title)
 
 @app.route("/action3", methods=['POST'])
@@ -91,7 +92,7 @@ def action3 ():
 	date=request.values.get("date")
 	pr=request.values.get("pr")
 	id=request.values.get("_id")
-	users.update({"_id":ObjectId(id)}, {'$set':{ "name":name, "desc":desc, "date":date, "pr":pr }})
+	todos.update({"_id":ObjectId(id)}, {'$set':{ "name":name, "desc":desc, "date":date, "pr":pr }})
 	return redirect("/")
 
 @app.route("/search", methods=['GET'])
@@ -101,9 +102,9 @@ def search():
 	key=request.values.get("key")
 	refer=request.values.get("refer")
 	if(key=="_id"):
-		todos_l = users.find({refer:ObjectId(key)})
+		todos_l = todos.find({refer:ObjectId(key)})
 	else:
-		todos_l = users.find({refer:key})
+		todos_l = todos.find({refer:key})
 	return render_template('searchlist.html',todos=todos_l,t=title,h=heading)
 
 @app.route("/about")
@@ -117,6 +118,3 @@ wsgi_app = app.wsgi_app
 if __name__ == "__main__":
 
     app.run()
-
-
-
