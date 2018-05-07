@@ -112,7 +112,7 @@ def about():
 
 # define for IIS module registration.
 
-wsgi_app = app.wsgi_app
+#wsgi_app = app.wsgi_app
 
 if __name__ == "__main__":
 
