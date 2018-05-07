@@ -9,7 +9,7 @@ heading = "ToDo Reminder"
 
 ##Un-Comment when running against the Cosmos DB Emulator
 client = MongoClient("mongodb://edisga:C9GMVNx4bBrUNMeI0L6A1PQVz2RKkkeq9cra7w3WQBKEYouvgHOwF6goGvkHGNpHT7MgwwN2FQzikdxBnhN9AA==@edisga.documents.azure.com:10255/?ssl=true&replicaSet=globaldb") #host uri
-db = client.test    #Select the database
+db = client.admin    #Select the database
 
 todos = db.todo #Select the collection
 
